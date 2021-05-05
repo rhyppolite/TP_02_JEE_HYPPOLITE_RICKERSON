@@ -48,6 +48,14 @@ public class UserHandler {
         users.add(user);
         Writer.serializeUsers();
     }
+    
+    public void creerUtilisateursDeTest() {
+        createUser("bdesir","DESIR", "Bazelais");
+        createUser("wmerandis","MERANDIS", "Wlberson");
+        createUser("cedmond","EDMOND", "Christelle");
+        createUser("jjean","JEAN", "Jerry");
+    }
+    
 
     /**
      * Renvoie la liste de tous les utilisateurs

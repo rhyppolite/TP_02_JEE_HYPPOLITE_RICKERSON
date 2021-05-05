@@ -1,5 +1,6 @@
 package utilisateurs;
 
+import java.io.File;
 import utilisateurs.modeles.User;
 import utilisateurs.gestionnaires.UserHandler;
 
@@ -19,4 +20,11 @@ public class Server {
 
         }
     }
+    
+    public static Boolean CheckFileExists(String _fileName) {
+        // test to see if a file exists
+        File file = new File(_fileName);
+        return file.exists();
+    }
+
 }

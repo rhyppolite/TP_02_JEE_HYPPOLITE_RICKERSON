@@ -18,24 +18,33 @@ public class Writer {
     private static String baseDir;
 
       public static void init(String ressourceDir) {
-        baseDir = ressourceDir;
+            baseDir = ressourceDir;
 
         Properties prop = new Properties();
         try {
             File f = new File(".");
-            System.out.println("chemin d'execution = " + f.getAbsolutePath());
+            System.out.println("chemin d'execution Writer = " + f.getAbsolutePath());
 
-            prop.load(new FileInputStream(baseDir + File.separator + "conf" + File.separator + "server.properties"));
-            users_fname = prop.getProperty("users.filename");
-            backup_suffix = prop.getProperty("backup.suffix");
-            datarep_prefix = prop.getProperty("data.repository.prefix");
-            backuprep_prefix = prop.getProperty("backup.repository.prefix");
+             if (Server.CheckFileExists(baseDir + File.separator + "users.xml")) {
+                prop.load(new FileInputStream(baseDir + File.separator + "users.xml"));//conf" + File.separator + "server.properties"));
+                users_fname = "users.xml";//prop.getProperty("users.filename");
+                backup_suffix = "bck";//prop.getProperty("backup.suffix");
+                datarep_prefix = "";//prop.getProperty("data.repository.prefix");
+                backuprep_prefix = "bck_old";//prop.getProperty("backup.repository.prefix");
+            } else {
+
+                users_fname = "users.xml";
+                datarep_prefix = "";
+            }
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            users_fname = "users.xml";
+            datarep_prefix = "";
+//            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+       
     }
 
     /**
@@ -60,5 +69,6 @@ public class Writer {
         JAXB.marshal(Server.uh, fusers);
         System.out.print("Utilisateurs sérialisés");
         Server.uh.print();
+        
     }
 }

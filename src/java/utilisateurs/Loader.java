@@ -11,14 +11,14 @@ import javax.xml.bind.JAXB;
 
 import utilisateurs.exceptions.LoadFileException;
 import utilisateurs.exceptions.NoBackupFileException;
-import utilisateurs.gestionnaires.UserHandler;
+import utilisateurs.gestionnaires.*;
 
 /**
  * Classe de chargement des donnees dans la structure objet du serveur. Les
  * fichiers lus ont ete generes par la classe {@link Writer}.
- * 
+ *
  * @author ndelafor
- * 
+ *
  */
 public class Loader {
 
@@ -35,15 +35,21 @@ public class Loader {
         Properties prop = new Properties();
         try {
             File f = new File(".");
-            System.out.println("chemin d'execution = " + f.getAbsolutePath());
 
-            prop.load(new FileInputStream(baseDir + File.separator + "conf" + File.separator + "server.properties"));
-            users_fname = prop.getProperty("users.filename");
-            backup_suffix = prop.getProperty("backup.suffix");
-            datarep_prefix = prop.getProperty("data.repository.prefix");
-            backuprep_prefix = prop.getProperty("backup.repository.prefix");
+            System.out.println("chemin d'execution Loader= " + f.getAbsolutePath());
+            if (Server.CheckFileExists(baseDir + File.separator + "users.xml")) {
+                prop.load(new FileInputStream(baseDir + File.separator + "users.xml"));//conf" + File.separator + "server.properties"));
+                users_fname = "users.xml";//prop.getProperty("users.filename");
+                backup_suffix = "bck";//prop.getProperty("backup.suffix");
+                datarep_prefix = "";//prop.getProperty("data.repository.prefix");
+                backuprep_prefix = "bck_old";//prop.getProperty("backup.repository.prefix");
+            } else {
 
+                users_fname = "users.xml";
+                datarep_prefix = "";
+            }
         } catch (FileNotFoundException e) {
+
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
@@ -74,10 +80,16 @@ public class Loader {
 
     public static void loadUsers() throws LoadFileException {
         try {
+            if (Server.CheckFileExists(baseDir + File.separator + "users.xml")) {
             File fusers = new File(baseDir + File.separator + datarep_prefix + users_fname);
             Server.uh = JAXB.unmarshal(fusers, UserHandler.class);
             System.out.print(fusers.getAbsolutePath());
             Server.uh.print();
+            }else {
+
+                users_fname = "users.xml";
+                datarep_prefix = "";
+            }
         } catch (DataBindingException e) {
             throw new LoadFileException(
                     "Erreur au chargement du fichier des utilisateurs");

@@ -15,22 +15,28 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import utilisateurs.Server;
+import utilisateurs.gestionnaires.UserHandler;
 import utilisateurs.modeles.User;
 
 /**
  *
  * @author michel
  */
-
 // En Java EE 6 on peut presque se passer du fichier web.xml, les annotations de codes
 // sont très pratiques !
 @WebServlet(name = "ServletUsers",
-     urlPatterns = {"/ServletUsers"},
-     initParams = {
-         @WebInitParam(name = "ressourceDir", value = "C:\\Users\\amoss\\TPJsp")
-     }
+        urlPatterns = {"/ServletUsers"},
+        initParams = {
+            @WebInitParam(name = "ressourceDir", value = "D:\\INSTALLED_SOFTWARE_HOME")
+        }
 )
 public class ServletUsers extends HttpServlet {
+
+    UserHandler uH = new UserHandler();
+    String login = null;
+    String lastName = null;
+    String firstName = null;
+    String userId = null;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -43,8 +49,10 @@ public class ServletUsers extends HttpServlet {
         Server.init(config.getInitParameter("ressourceDir"));
     }
 
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -58,14 +66,43 @@ public class ServletUsers extends HttpServlet {
         String message = "";
 
         if (action != null) {
+
             if (action.equals("listerLesUtilisateurs")) {
                 Collection<User> liste = Server.uh.getUsers();
                 request.setAttribute("listeDesUsers", liste);
                 forwardTo = "index.jsp?action=listerLesUtilisateurs";
                 message = "Liste des utilisateurs";
+
+            } else if (action.equals("creerUtilisateursDeTest")) {
+                Server.uh.creerUtilisateursDeTest();
+                forwardTo = "index.jsp?action=todo";
+                message = "Les utilisateurs Test sont créés avec succès";
+            }else if (action.equals("chercherParLogin")) {
+                login = request.getParameter("login");
+                User usr = Server.uh.getUserFromLogin(login);
+                request.setAttribute("lastName", usr.getLastName());
+                request.setAttribute("firstName", usr.getFirstName());
+                request.setAttribute("log", usr.getLogin());
+                request.setAttribute("userId", usr.getId());
+                System.out.println("ID: " + usr.getId());
+                System.out.println("LAST NAME: " + usr.getLastName());
+                System.out.println("FIRST NAME: " + usr.getFirstName());
+                System.out.println("LOGIN: " + usr.getLogin());
+                forwardTo = "index.jsp?action=chercherParLogin";
+                message = "Affichage d'un utilisateur";
+
+            } else if (action.equals("updateUtilisateur")) {
+                login = request.getParameter("login");
+                lastName = request.getParameter("nom");
+                firstName = request.getParameter("prenom");
+                userId = request.getParameter("userId");
+                uH.updateUser(userId, login, lastName, firstName);
+                forwardTo = "index.jsp?action=chercherParLogin";
+                message = "L'utilisateur a été modifié avec succès";
+
             } else {
                 forwardTo = "index.jsp?action=todo";
-                message = "La fonctionnalité pour le paramètre " + action + " est à implémenter !";
+                message = "Créer un utilisateur";
             }
         }
 
@@ -76,8 +113,9 @@ public class ServletUsers extends HttpServlet {
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
+    /**
      * Handles the HTTP <code>GET</code> method.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -89,8 +127,9 @@ public class ServletUsers extends HttpServlet {
         processRequest(request, response);
     }
 
-    /** 
+    /**
      * Handles the HTTP <code>POST</code> method.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -99,11 +138,20 @@ public class ServletUsers extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        login = request.getParameter("login");
+        lastName = request.getParameter("nom");
+        firstName = request.getParameter("prenom");
+        uH.createUser(login, lastName, firstName);
+        RequestDispatcher dp = request.getRequestDispatcher("index.jsp?action=todo" + "&message=" + "+ Utilisateur créé avec succès");
+        dp.forward(request, response);
         processRequest(request, response);
+        
     }
 
-    /** 
+    /**
      * Returns a short description of the servlet.
+     *
      * @return a String containing servlet description
      */
     @Override
