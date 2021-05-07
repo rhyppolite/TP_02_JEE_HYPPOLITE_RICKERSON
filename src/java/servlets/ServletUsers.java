@@ -37,6 +37,8 @@ public class ServletUsers extends HttpServlet {
     String lastName = null;
     String firstName = null;
     String userId = null;
+    String forwardTo = "";
+    String message = "";
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -62,8 +64,6 @@ public class ServletUsers extends HttpServlet {
             throws ServletException, IOException {
         // Pratique pour décider de l'action à faire
         String action = request.getParameter("action");
-        String forwardTo = "";
-        String message = "";
 
         if (action != null) {
 
@@ -77,19 +77,18 @@ public class ServletUsers extends HttpServlet {
                 Server.uh.creerUtilisateursDeTest();
                 forwardTo = "index.jsp?action=todo";
                 message = "Les utilisateurs Test sont créés avec succès";
-            }else if (action.equals("chercherParLogin")) {
+            } else if (action.equals("chercherParLogin")) {
                 login = request.getParameter("login");
-                User usr = Server.uh.getUserFromLogin(login);
-                request.setAttribute("lastName", usr.getLastName());
-                request.setAttribute("firstName", usr.getFirstName());
-                request.setAttribute("log", usr.getLogin());
-                request.setAttribute("userId", usr.getId());
-                System.out.println("ID: " + usr.getId());
-                System.out.println("LAST NAME: " + usr.getLastName());
-                System.out.println("FIRST NAME: " + usr.getFirstName());
-                System.out.println("LOGIN: " + usr.getLogin());
-                forwardTo = "index.jsp?action=chercherParLogin";
-                message = "Affichage d'un utilisateur";
+                if (Server.uh.getUserFromId(login) == null) {
+//                    uH.createUser(login, lastName, firstName);
+                    forwardTo = "index.jsp?action=todo";
+                    message = "Cet Utilisateur n'existe pas";
+                } else {
+                    User usr = Server.uh.getUserFromLogin(login);
+                    request.setAttribute("usr", usr);
+                    forwardTo = "index.jsp?action=chercherParLogin";
+                    message = "Affichage d'un utilisateur";
+                }
 
             } else if (action.equals("updateUtilisateur")) {
                 login = request.getParameter("login");
@@ -142,11 +141,20 @@ public class ServletUsers extends HttpServlet {
         login = request.getParameter("login");
         lastName = request.getParameter("nom");
         firstName = request.getParameter("prenom");
-        uH.createUser(login, lastName, firstName);
-        RequestDispatcher dp = request.getRequestDispatcher("index.jsp?action=todo" + "&message=" + "+ Utilisateur créé avec succès");
+
+        if (uH.getUserFromId(login) == null) {
+            uH.createUser(login, lastName, firstName);
+            forwardTo = "index.jsp?action=todo";
+            message = "Utilisateur créé avec succès";
+        } else {
+            forwardTo = "index.jsp?action=todo";
+            message = "Cet Utilisateur existe déjà";
+        }
+
+        RequestDispatcher dp = request.getRequestDispatcher(forwardTo + "&message=" + message);
         dp.forward(request, response);
         processRequest(request, response);
-        
+
     }
 
     /**

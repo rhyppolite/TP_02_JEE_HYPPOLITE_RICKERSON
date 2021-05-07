@@ -4,12 +4,14 @@
     Author     : michel buffa
 --%>
 
+<%@page import="utilisateurs.modeles.User"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
     "http://www.w3.org/TR/html4/loose.dtd">
 
 <!-- Ne pas oublier cette ligne sinon tous les tags de la JSTL seront ignorés ! -->
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+
 
 <html>
     <head>
@@ -42,7 +44,7 @@
             <ol class="list-group list-group-numbered">
                 <li><strong>Créer un utilisateur</strong></a</li>
 
-                
+
                 <form action="ServletUsers" method="post">
 
                     <div class="form-group">
@@ -82,25 +84,23 @@
 
                 <li><strong>Modifier les détails d'un utilisateur :</strong></li>
                 <form action="ServletUsers" method="get">
-
-
                     <div class="form-group">
                         <label for="login">Login</label>
-                        <input type="text" class="form-control" name="login" value="${requestScope.log}"/>
+                        <input type="text" class="form-control" name="login" value="${requestScope.usr.getLogin()} " readonly/>
 
                     </div>
                     <div class="form-group">
                         <label for="nom">Nom</label>
-                        <input type="text"  class="form-control" name="nom" value="${requestScope.lastName}"/>
+                        <input type="text"  class="form-control" name="nom" value="${requestScope.usr.getLastName()}"/>
                     </div>
 
                     <div class="form-group">
                         <label for="prenom">Prenom</label>
-                        <input type="text" class="form-control" name="prenom" value="${requestScope.firstName}"/>
-                        <input type="hidden" name="userId" value="${requestScope.userId}"/>
+                        <input type="text" class="form-control" name="prenom" value="${requestScope.usr.getFirstName()}"/>
+                        <input type="hidden" name="userId" value="${requestScope.usr.getId()}"/>
                         <input type="hidden" name="action" value="updateUtilisateur"/>
                     </div>
-                        <button type="submit" class="btn btn-success">Mettre à jour</button><br><br>
+                    <button type="submit" class="btn btn-success">Mettre à jour</button><br><br>
                 </form>
             </ol>
 
@@ -128,13 +128,13 @@
 
                     <c:forEach var="u" items="${requestScope['listeDesUsers']}">
                         <tbody>
-                        <tr>
-                            <td>${u.login}</td>
-                            <td>${u.lastName}</td>
-                            <td>${u.firstName}</td>
-                            <!-- On compte le nombre de users -->
-                            <c:set var="total" value="${total+1}"/>
-                        </tr>
+                            <tr>
+                                <td>${u.login}</td>
+                                <td>${u.lastName}</td>
+                                <td>${u.firstName}</td>
+                                <!-- On compte le nombre de users -->
+                                <c:set var="total" value="${total+1}"/>
+                            </tr>
                         </tbody>
                     </c:forEach>
 
